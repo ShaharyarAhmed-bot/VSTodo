@@ -1,11 +1,21 @@
 import * as vscode from "vscode";
+import { HelloWorldPanel } from "./HelloWorldPanel";
+import { SidebarProvider } from "./SidebarProvider";
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "vstodo" is now active!');
+
+  const sidebarProvider = new SidebarProvider(context.extensionUri);
+
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      "vstodo-sidebar",
+      sidebarProvider
+    )
+  );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vstodo.helloWorld", () => {
-      vscode.window.showInformationMessage("Hello World from VSTodo!");
+      HelloWorldPanel.createOrShow(context.extensionUri);
     })
   );
 
@@ -17,15 +27,23 @@ export function activate(context: vscode.ExtensionContext) {
         "Bad"
       );
 
-	  if (answer == "Bad"){
-		  vscode.window.showInformationMessage("Sorry to hear that!")
+	  if (answer === "Bad"){
+		  vscode.window.showInformationMessage("Sorry to hear that!");
 	  } else{
-		  console.log(answer)
+		  console.log(answer);
 	  }
 
 
     })
 
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vstodo.refresh", () => {
+      HelloWorldPanel.kill();
+      HelloWorldPanel.createOrShow(context.extensionUri);
+
+    })
   );
 }
 
